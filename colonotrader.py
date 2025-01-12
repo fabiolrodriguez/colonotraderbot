@@ -1,9 +1,13 @@
 from binance.client import Client # pip install python-binance
-
+from dotenv import load_dotenv
+import os
 import time
 
-API_KEY = 'GmsOPS1Yla8MwwjZocqBDHx0mpGM0D7OvwNIE6piVE5Zd3M7nCQby5GJWjOQMPvU'
-API_SECRET = '6cky0lImAuEsWDilUBevcRCBOjW9tBSuHRMbS53Z04t7noPGCORAgo8PHfBVjXU1'
+# Load the .env file
+load_dotenv()
+
+API_KEY = os.getenv("API_KEY")
+API_SECRET = os.getenv("API_SECRET")
 
 client = Client(API_KEY,API_SECRET,testnet=True)
 
