@@ -42,7 +42,7 @@ Modify to fill your needs
 
 ## Todo
 
-- [] Store the value of **positioned** variable on some external place, to keep it in case of execution break
-- [] Make it production ready
-- [] Dockerize
-- [] Host on cloud
+- [ ] Store the value of **positioned** variable on some external place, to keep it in case of execution break
+- [ ] Make it production ready
+- [ ] Dockerize
+- [ ] Host on cloud
