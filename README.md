@@ -10,7 +10,7 @@ The, create a .env file and fill with your API_KEY and API_SECRET
 
 ```
 API_KEY='YOUR KEY'
-API_SECRET = 'YOUR SECRET'
+API_SECRET='YOUR SECRET'
 ```
 
 Install required libraries
@@ -37,3 +37,12 @@ Scheduler started. Press Ctrl+C to exit.
 ```
 
 Modify to fill your needs
+
+** This bot is currently configured to operate on Binance testnet **
+
+## Todo
+
+[] Store the value of *positioned* variable on some external place, to keep it in case of execution break
+[] Make it production ready
+[] Dockerize
+[] Host on cloud
