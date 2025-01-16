@@ -46,3 +46,4 @@ Modify to fill your needs
 - [ ] Make it production ready
 - [ ] Dockerize
 - [ ] Host on cloud
+- [x] Telegram notifications

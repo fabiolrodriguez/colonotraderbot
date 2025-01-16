@@ -1,6 +1,7 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler # pip install apscheduler
 from binance.client import Client # pip install python-binance
 from dotenv import load_dotenv # pip install python-dotenv
+from telegram import Bot
 import os
 import time
 import asyncio
@@ -13,6 +14,9 @@ load_dotenv()
 
 API_KEY = os.getenv("API_KEY")
 API_SECRET = os.getenv("API_SECRET")
+TOKEN = os.getenv("TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
+MESSAGE = ''
 
 ## Save the position on json file
 STATE_FILE = "state.json"
@@ -39,8 +43,8 @@ client = Client(API_KEY,API_SECRET,testnet=True)
 client.get_account()
 
 symbol = 'BTCUSDT'
-buy_price: float = 94900
-sell_price: float = 95000
+buy_price: float = 95000
+sell_price: float = 100000
 trade_quantity = 0.001
 
 async def get_current_price(symbol):
@@ -67,12 +71,14 @@ async def place_sell_order(symbol,quantity):
         return None
 
 async def trading_bot():
+
+    global MESSAGE
     
     positioned = load_state()  # Load the state from the JSON file
     print(f"Loaded positioned: {positioned}")
 
     currency = await get_current_price(symbol)
-    
+
     if currency is None:
         await asyncio.sleep(5)  # Retry after 5 seconds if there was an error
         
@@ -83,13 +89,25 @@ async def trading_bot():
             print(f"Price is {currency} placing sell order")
             await place_sell_order(symbol,trade_quantity)
             positioned = False
-            save_state(positioned)            
+            save_state(positioned)
+            MESSAGE = f"Price is {currency} placing sell order"
+            await send_telegram_message(TOKEN, CHAT_ID, MESSAGE)
     else:
         if currency < buy_price:
             print(f"Price is {currency} placing buy order")
             await place_buy_order(symbol,trade_quantity)
             positioned = True
             save_state(positioned)
+            MESSAGE = f"Price is {currency} placing buy order"
+            await send_telegram_message(TOKEN, CHAT_ID, MESSAGE)
+
+# Telegram notifcations
+
+async def send_telegram_message(token, chat_id, message):
+    bot = Bot(token=token)
+    await bot.send_message(chat_id=chat_id, text=message)
+
+# End of telegram notifications
 
 async def main():
 
@@ -99,7 +117,8 @@ async def main():
     print("Starting bot...")
     scheduler.start()
     print("Scheduler started. Press Ctrl+C to exit.")
-    
+    MESSAGE = "Bot iniciado"
+    await send_telegram_message(TOKEN, CHAT_ID, MESSAGE)    
     try:
         await asyncio.Event().wait()
     except (KeyboardInterrupt, SystemExit):
