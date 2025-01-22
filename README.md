@@ -16,7 +16,7 @@ API_SECRET='YOUR SECRET'
 Install required libraries
 
 ```
-pip install apscheduler python-binance python-dotenv
+pip install apscheduler python-binance python-dotenv python-telegram-Bot
 ```
 
 Configure the requested crypto, buy and sell price on the code.
