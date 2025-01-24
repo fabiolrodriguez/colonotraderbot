@@ -17,6 +17,9 @@ API_SECRET = os.getenv("API_SECRET")
 TOKEN = os.getenv("TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 MESSAGE = ''
+# Set safe checks count
+checks = 0
+checks_treshold = 3
 
 ## Save the position on json file
 STATE_FILE = "state.json"
@@ -43,8 +46,8 @@ client = Client(API_KEY,API_SECRET,testnet=True)
 client.get_account()
 
 symbol = 'BTCUSDT'
-buy_price: float = 95000
-sell_price: float = 100000
+buy_price: float = 103000
+sell_price: float = 104000
 trade_quantity = 0.001
 
 async def get_current_price(symbol):
@@ -73,6 +76,8 @@ async def place_sell_order(symbol,quantity):
 async def trading_bot():
 
     global MESSAGE
+    global checks
+    global checks_treshold
     
     positioned = load_state()  # Load the state from the JSON file
     print(f"Loaded positioned: {positioned}")
@@ -86,20 +91,34 @@ async def trading_bot():
 
     if positioned:
         if currency > sell_price:
-            print(f"Price is {currency} placing sell order")
-            await place_sell_order(symbol,trade_quantity)
-            positioned = False
-            save_state(positioned)
-            MESSAGE = f"Price is {currency} placing sell order"
-            await send_telegram_message(TOKEN, CHAT_ID, MESSAGE)
+            if checks < checks_treshold:
+                print(f"Price is {currency} setting checks: {checks}")
+                checks = checks + 1
+                MESSAGE = f"Price is {currency} setting checks: {checks}"
+                await send_telegram_message(TOKEN, CHAT_ID, MESSAGE)
+            else:
+                print(f"Price is {currency} placing sell order")
+                await place_sell_order(symbol,trade_quantity)
+                positioned = False
+                checks = 0
+                save_state(positioned)
+                MESSAGE = f"Price is {currency} placing sell order"
+                await send_telegram_message(TOKEN, CHAT_ID, MESSAGE)
     else:
         if currency < buy_price:
-            print(f"Price is {currency} placing buy order")
-            await place_buy_order(symbol,trade_quantity)
-            positioned = True
-            save_state(positioned)
-            MESSAGE = f"Price is {currency} placing buy order"
-            await send_telegram_message(TOKEN, CHAT_ID, MESSAGE)
+            if checks < checks_treshold:
+                print(f"Price is {currency} setting checks: {checks}")
+                checks = checks + 1
+                MESSAGE = f"Price is {currency} setting checks: {checks}"
+                await send_telegram_message(TOKEN, CHAT_ID, MESSAGE)
+            else:                        
+                print(f"Price is {currency} placing buy order")
+                await place_buy_order(symbol,trade_quantity)
+                positioned = True
+                checks = 0
+                save_state(positioned)
+                MESSAGE = f"Price is {currency} placing buy order"
+                await send_telegram_message(TOKEN, CHAT_ID, MESSAGE)
 
 # Telegram notifcations
 
